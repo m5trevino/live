@@ -1,0 +1,25 @@
+quiet splasht nosplash failsafe nomodeset
+quiet splasht nosplash
+ro  nvidia-drm.modeset=1 loglevel=7 quiet systemd.unit=multi-user.target
+ro  quiet splash systemd.unit=multi-user.target
+ro  quiet splash systemd.unit=multi-user.target init=/lib/systemd/systemd
+ro  quiet splash systemd.unit=multi-user.target
+ro  quiet splash systemd.unit=multi-user.target init=/lib/systemd/systemd
+ro quiet 3
+ro 3 nomodeset nouveau.modeset=0 rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+ro 3 nouveau.modeset=0 rd.driver.blacklist=nouveau modprobe.blacklist=nouveau debug ignore_loglevel log_buf_len=10M
+ro quiet 3 nouveau.modeset=0 rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+ro single nomodeset
+ro quietro nomodeset video=efifb:off
+ro drm.debug=0x1e log_buf_len=10M
+ro nvidia-drm.modeset=1 drm.debug=0x1e log_buf_len=10
+ro quiet 3 nvidia-drm.modeset=1
+ro quiet nvidia-drm.modeset=1 sysrq_always_enabled=1
+ro nvidia-drm.modeset=1ro quiet nvidia-drm.modeset=1 pcie_aspm=off
+ro quiet nvidia-drm.modeset=1 intel_pstate=disable
+ro quiet nvidia-drm.modeset=1 processor.max_cstate=1 intel_idle.max_cstate=1 
+ro  quiet splash systemd.unit=multi-user.target init=/lib/systemd/systemd 
+ro  quiet splash systemd.unit=multi-user.target
+ro  nvidia-drm.modeset=1 loglevel=7 quiet systemd.unit=multi-user.target
+quiet splasht nosplash 
+quiet splasht nosplash failsafe nomodeset

@@ -1,0 +1,149 @@
+#!/bin/bash
+
+# Cyberpunk ASCII Art Banner (in neon green)
+banner() {
+    echo -e "\033[38;5;46m"
+    echo '╔═══════════════════════════════════════════╗'
+    echo '║  ╔═╗╦ ╦╔╗ ╔═╗╦═╗╔═╗╔═╗╦═╗╔╦╗╦╔═╗       ║'
+    echo '║  ║  ╚╦╝╠╩╗║╣ ╠╦╝╠═╝║╣ ╠╦╝║║║║╚═╗       ║'
+    echo '║  ╚═╝ ╩ ╚═╝╚═╝╩╚═╩  ╚═╝╩╚═╩ ╩╩╚═╝       ║'
+    echo '╚═══════════════════════════════════════════╝'
+    echo -e "\033[0m"
+}
+
+# Function to show the command being executed
+show_command() {
+    echo -e "\033[38;5;208m[EXECUTING] → $1\033[0m"
+}
+
+# Function to display error messages
+error() {
+    echo -e "\033[38;5;196m[ERROR] → $1\033[0m"
+}
+
+# Function to display success messages
+success() {
+    echo -e "\033[38;5;46m[SUCCESS] → $1\033[0m"
+}
+
+# Help message
+show_help() {
+    echo -e "\033[38;5;147mUsage: permis [PATH] [-flag]"
+    echo
+    echo "Flags:"
+    echo "-f    Full access (777)"
+    echo "-s    Standard access (755)"
+    echo "-r    Restricted access (644)"
+    echo "-m    Minimal access (600)"
+    echo "-x    Execute only (711)"
+    echo
+    echo "Example: permis /home/user/directory -f"
+    echo -e "Or run without arguments for interactive mode\033[0m"
+}
+
+# Get target path (either from argument or prompt)
+get_path() {
+    if [ -n "$1" ]; then
+        TARGET_PATH="$1"
+    else
+        echo -e "\033[38;5;51mEnter path (file or directory): \033[0m"
+        read TARGET_PATH
+    fi
+
+    if [ ! -e "$TARGET_PATH" ]; then
+        error "Path doesn't exist, my guy! Check that shit again."
+        exit 1
+    fi
+}
+
+# Permission menu
+show_menu() {
+    echo -e "\033[38;5;213m╔════ PERMISSION LEVELS ════╗"
+    echo "║ 1) Full Access (777)      ║"
+    echo "║ 2) Standard Access (755)  ║"
+    echo "║ 3) Restricted Access (644)║"
+    echo "║ 4) Minimal Access (600)   ║"
+    echo "║ 5) Execute Only (711)     ║"
+    echo -e "╚══════════════════════════╝\033[0m"
+    echo
+    echo -e "\033[38;5;51mSelect your permission level (1-5): \033[0m"
+}
+
+# Change ownership function
+change_ownership() {
+    echo -e "\033[38;5;220mWanna change the owner? (y/n): \033[0m"
+    read CHANGE_OWNER
+    if [[ $CHANGE_OWNER == "y" || $CHANGE_OWNER == "Y" ]]; then
+        echo -e "\033[38;5;51mEnter new owner (user:group): \033[0m"
+        read NEW_OWNER
+        if [ -d "$TARGET_PATH" ]; then
+            show_command "sudo chown -R $NEW_OWNER \"$TARGET_PATH\""
+            sudo chown -R $NEW_OWNER "$TARGET_PATH"
+        else
+            show_command "sudo chown $NEW_OWNER \"$TARGET_PATH\""
+            sudo chown $NEW_OWNER "$TARGET_PATH"
+        fi
+    fi
+}
+
+# Main permission change function
+change_permissions() {
+    local PERMS=$1
+    
+    # Try without sudo first
+    if [ -d "$TARGET_PATH" ]; then
+        if chmod -R $PERMS "$TARGET_PATH" 2>/dev/null; then
+            show_command "chmod -R $PERMS \"$TARGET_PATH\""
+        else
+            # If failed, try with sudo
+            show_command "sudo chmod -R $PERMS \"$TARGET_PATH\""
+            sudo chmod -R $PERMS "$TARGET_PATH"
+        fi
+    else
+        if chmod $PERMS "$TARGET_PATH" 2>/dev/null; then
+            show_command "chmod $PERMS \"$TARGET_PATH\""
+        else
+            # If failed, try with sudo
+            show_command "sudo chmod $PERMS \"$TARGET_PATH\""
+            sudo chmod $PERMS "$TARGET_PATH"
+        fi
+    fi
+}
+
+# Main script logic
+banner
+
+# Check for help flag
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
+# Handle command line arguments
+if [ $# -eq 2 ]; then
+    get_path "$1"
+    case "$2" in
+        "-f") PERMS="777" ;;
+        "-s") PERMS="755" ;;
+        "-r") PERMS="644" ;;
+        "-m") PERMS="600" ;;
+        "-x") PERMS="711" ;;
+        *) error "Invalid flag, my guy!"; show_help; exit 1 ;;
+    esac
+else
+    get_path
+    show_menu
+    read CHOICE
+    case $CHOICE in
+        1) PERMS="777" ;;
+        2) PERMS="755" ;;
+        3) PERMS="644" ;;
+        4) PERMS="600" ;;
+        5) PERMS="711" ;;
+        *) error "Invalid choice, fam!"; exit 1 ;;
+    esac
+fi
+
+change_permissions $PERMS
+change_ownership
+success "Permissions updated successfully! We out! 🔥"

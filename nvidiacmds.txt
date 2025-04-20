@@ -1,0 +1,52 @@
+lsinitramfs /boot/initrd.img-$(uname -r) | grep nvidia
+
+
+
+/etc/modprobe.d/blacklist-nvidia-nouveau.conf
+/etc/initramfs-tools/modules
+nvidia" "nvidia_modeset" "nvidia_drm" "nvidia_uvm"
+update-initramfs -u -k all
+uname -a
+/proc/version
+/proc/driver/nvidia/version
+lspci --version
+sudo dmesg
+ls -l /dev/dri/* /dev/nvidia*
+update-alternatives --display nvidia
+update-alternatives --display glx
+ls -ld \
+        /etc/alternatives/glx* \
+        /etc/alternatives/nvidia* \
+        /etc/ld.so.conf.d/*nvidia*.conf \
+        /etc/ld.so.conf.d/*GL*.conf \
+        /usr/lib/x86_64-linux-gnu/libnvidia* \
+        /usr/lib/x86_64-linux-gnu/libGL* \
+        /usr/lib/x86_64-linux-gnu/libEGL* \
+        /usr/lib/x86_64-linux-gnu/nvidia/current/* \
+        /usr/lib/i386-linux-gnu/libnvidia* \
+        /usr/lib/i386-linux-gnu/libGL* \
+        /usr/lib/i386-linux-gnu/libEGL* \
+        /usr/lib/xorg/modules/drivers/nvidia_drv.so \
+        /usr/lib/xorg/modules/extensions/libglxserver_nvidia.so \
+        /usr/share/glvnd/egl_vendor.d/10_nvidia.json \
+        
+        ls -la /etc/modprobe.d/
+        
+        ls -la /etc/modules /etc/modules-load.d/ 2>/dev/null
+        
+        grep -rHiE 'nvidia|nouveau' /etc/modprobe.d/ --color=never 
+        
+        grep -rHiE 'nvidia|nouveau' /etc/modules /etc/modules-load.d/ --color=never
+        
+        ls -la /usr/bin/nvidia-installer /usr/bin/nvidia-uninstall /var/lib/nvidia 
+        
+        shopt -s nullglob
+        
+        
+        ls -dt $HOME/.local/share/xorg/Xorg.*.log*
+        
+        ls -dt /var/log/Xorg.*.log* 2>/dev/null
+        
+        find /lib/modules/$(uname -r) -name "nvidia*.ko" 
+        
+        lsmod | grep nvidia || info
