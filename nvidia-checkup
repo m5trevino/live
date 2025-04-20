@@ -1,11 +1,12 @@
 #!/bin/sh
 
+# START ### CONFIGURATION ###
 PATH=/sbin:$PATH
-
 export LC_ALL=C
+# The problematic 'exec >&3' line has been removed.
+# FINISH ### CONFIGURATION ###
 
-exec >&3
-
+# START ### SYSTEM INFO ###
 echo "uname -a:"
 uname -a
 echo
@@ -13,31 +14,41 @@ echo
 echo "/proc/version:"
 cat /proc/version
 echo
+# FINISH ### SYSTEM INFO ###
 
+# START ### NVIDIA DRIVER VERSION ###
 if [ -e /proc/driver/nvidia/version ]; then
 	echo "/proc/driver/nvidia/version:"
 	cat /proc/driver/nvidia/version
 	echo
 fi
+# FINISH ### NVIDIA DRIVER VERSION ###
 
+# START ### PCI DEVICES ###
 if (lspci --version) > /dev/null 2>&1; then
 	echo "lspci 'display controller [030?]':"
 	for device in $(lspci -mn | awk '{ if ($2 ~ "\"030[0-2]\"") { print $1 } }'); do
 		LC_ALL=C lspci -vvnn -s $device
 	done
 fi
+# FINISH ### PCI DEVICES ###
 
+# START ### KERNEL LOGS (DMESG) ###
 if [ -x /bin/dmesg ]; then
 	echo "dmesg:"
 	dmesg | grep -iE 'nvidia|nvrm|agp|vga'
 	echo
 fi
+# FINISH ### KERNEL LOGS (DMESG) ###
 
+# START ### DEVICE NODES ###
 echo "Device node permissions:"
 ls -l /dev/dri/* /dev/nvidia* 2>/dev/null
 getent group video
 echo
+# FINISH ### DEVICE NODES ###
 
+# START ### UPDATE ALTERNATIVES ###
 echo "Alternative 'nvidia':"
 update-alternatives --display nvidia
 echo
@@ -45,7 +56,9 @@ echo
 echo "Alternative 'glx':"
 update-alternatives --display glx
 echo
+# FINISH ### UPDATE ALTERNATIVES ###
 
+# START ### INSTALLED LIBRARIES ###
 echo "OpenGL and NVIDIA library files installed:"
 ls -l	/etc/alternatives/glx* \
 	/etc/alternatives/nvidia* \
@@ -92,25 +105,33 @@ ls -la	\
 	/usr/share/X11/xorg.conf.d/ \
 	2>/dev/null
 echo
+# FINISH ### INSTALLED LIBRARIES ###
 
+# START ### MODPROBE CONFIG ###
 echo "/etc/modprobe.d:"
 ls -la /etc/modprobe.d/
 echo
 grep -ri nvidia /etc/modprobe.d/
 grep -ri nouveau /etc/modprobe.d/
 echo
+# FINISH ### MODPROBE CONFIG ###
 
+# START ### MODULES LOAD CONFIG ###
 echo "/etc/modules-load.d:"
 ls -la /etc/modules /etc/modules-load.d/ 2>&1
 echo
 grep -ri nvidia /etc/modules /etc/modules-load.d/ 2>/dev/null
 grep -ri nouveau /etc/modules /etc/modules-load.d/ 2>/dev/null
 echo
+# FINISH ### MODULES LOAD CONFIG ###
 
+# START ### NVIDIA INSTALLER FILES ###
 echo "Files from nvidia-installer:"
 ls -la /usr/bin/nvidia-installer /usr/bin/nvidia-uninstall /var/lib/nvidia 2>/dev/null
 echo
+# FINISH ### NVIDIA INSTALLER FILES ###
 
+# START ### CONFIG AND LOG FILES ###
 echo "Config and logfiles:"
 echo
 for file in \
@@ -129,34 +150,49 @@ do
 		echo
 	fi
 done
+# FINISH ### CONFIG AND LOG FILES ###
 
+# START ### SYSTEMD JOURNAL (XORG) ###
 if [ -d /run/systemd/system ]; then
 	echo "<<<<<<<<<< Xorg (journald) >>>>>>>>>>"
 	journalctl -b _COMM=Xorg --no-pager
 	echo "^^^^^^^^^^ Xorg (journald) ^^^^^^^^^^"
 	echo
 fi
+# FINISH ### SYSTEMD JOURNAL (XORG) ###
 
+# START ### KERNEL MODULES INFO ###
 echo "Kernel modules: nvidia.ko"
 find /lib/modules -name "nvidia*.ko"
 echo
 find /lib/modules -name "nvidia*.ko" | xargs -r modinfo | grep -v ^parm:
 echo
+# FINISH ### KERNEL MODULES INFO ###
 
+# START ### LOADED MODULES (LSMOD) ###
 echo "lsmod:"
 lsmod
 echo
+# FINISH ### LOADED MODULES (LSMOD) ###
 
+# START ### XRANDR OUTPUT ###
 echo "xrandr:"
 test ! -x /usr/bin/xrandr || xrandr 2>&1
 echo
+# FINISH ### XRANDR OUTPUT ###
 
+# START ### OPENCL ICD ###
 echo "OpenCL ICDs:"
 grep -H . /etc/OpenCL/vendors/* 2>/dev/null
 echo
+# FINISH ### OPENCL ICD ###
 
+# START ### APT SOURCES ###
 echo "APT sources:"
 apt-cache policy
 echo
+# FINISH ### APT SOURCES ###
 
+# START ### SCRIPT EXIT ###
 exit 0
+# FINISH ### SCRIPT EXIT ###
